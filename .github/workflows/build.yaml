@@ -1,26 +1,26 @@
+---
 name: Build
 
 on:
   push:
     branches:
-      - master
+      - macvlan_support
 
 jobs:
   docker:
-    runs-on: ubuntu-20.04
-
+    runs-on: ubuntu-22.04
     env:
-      PLUGIN_NAME: ghcr.io/devplayer0/docker-net-dhcp
-      PLATFORMS: linux/amd64,linux/386,linux/arm64,linux/arm/v7
-
+      PLUGIN_NAME: ghcr.io/qosmio/docker-net-dhcp
+      PLATFORMS: linux/amd64,linux/arm64
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Install script dependencies
         run: pip3 install -r scripts/requirements.txt
@@ -37,7 +37,7 @@ jobs:
       - name: Push
         env:
           REGISTRY_USERNAME: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+          REGISTRY_PASSWORD: ${{ secrets.GH_TOKEN }}
+        run: |-
           make PLUGIN_TAG=${{ steps.vars.outputs.tag }} push-multiarch
           scripts/tag_multiarch_plugin.py -p "$PLATFORMS" "$PLUGIN_NAME:${{ steps.vars.outputs.tag }}" latest

@@ -13,22 +13,23 @@ echo "Building package $VERSION"
 echo "You may specify version in VERSION env var"
 
 if [ -d "$PKG_ROOT" ]; then
-	read -r -p "WARNING $PKG_ROOT exists. Do you want to remove it? [Y/n] " -n 1 DO_RM
-	case $DO_RM in
-		Y|y)
-			rm -rf "$PKG_ROOT"
-			;;
-		N|n)
-			exit 1
-			;;
-		*)
-			if [ -z "$DO_RM" ]; then
-				rm -rf "$PKG_ROOT"
-			else
-				echo "ERROR Unknown option $DO_RM"
-				exit 1
-			fi
-	esac
+  read -r -p "WARNING $PKG_ROOT exists. Do you want to remove it? [Y/n] " -n 1 DO_RM
+  case $DO_RM in
+    Y | y)
+      rm -rf "$PKG_ROOT"
+      ;;
+    N | n)
+      exit 1
+      ;;
+    *)
+      if [ -z "$DO_RM" ]; then
+        rm -rf "$PKG_ROOT"
+      else
+        echo "ERROR Unknown option $DO_RM"
+        exit 1
+      fi
+      ;;
+  esac
 fi
 
 mkdir -p "$PKG_ROOT/DEBIAN"
@@ -50,5 +51,7 @@ mkdir -p "$PKG_ROOT/usr/lib/net-dhcp"
 CGO_ENABLED=0 go build -o "$PKG_ROOT/usr/lib/net-dhcp/net-dhcp" -ldflags="-extldflags=-static" -trimpath cmd/net-dhcp/main.go
 CGO_ENABLED=0 go build -o "$PKG_ROOT/usr/lib/net-dhcp/udhcpc-handler" -ldflags="-extldflags=-static" -trimpath cmd/udhcpc-handler/main.go
 
-dpkg-deb --build "$PKG_ROOT" && \
-	mv "${PKG_ROOT}.deb" "$DST/$DEB_NAME"
+fakeroot chown 0:0 -fR "$PKG_ROOT"
+fakeroot chmod 755 -fR "$PKG_ROOT"
+fakeroot dpkg-deb --build "$PKG_ROOT" \
+  && mv "${PKG_ROOT}.deb" "$DST/$DEB_NAME"
