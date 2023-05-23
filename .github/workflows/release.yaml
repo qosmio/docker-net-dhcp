@@ -40,11 +40,15 @@ jobs:
           scripts/tag_multiarch_plugin.py -p $PLATFORMS "$DOCKER_REPO:latest" release
 
       - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
         env:
-          GITHUB_TOKEN: '${{ secrets.GH_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          tag: ${{ github.ref }}
+          token: ${{ secrets.GH_TOKEN }}
+          tag: ${{ github.ref_name }}
+          #artifacts: "${{ github.event.repository.name }}-${{ steps.setup_sp.outputs.plugin-version }}.zip"
+          draft: false
+          allowUpdates: true
+          prerelease: false
+          replacesArtifacts: true
           name: docker-net-dhcp ${{ steps.vars.outputs.version }}
           bodyFile: release.md
