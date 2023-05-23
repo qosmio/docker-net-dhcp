@@ -37,7 +37,6 @@ jobs:
           REGISTRY_USERNAME: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ secrets.GH_TOKEN }}
         run: |
-          # scripts/tag_multiarch_plugin.py -p $PLATFORMS "$DOCKER_REPO:latest" ${{ steps.vars.outputs.version }}
           scripts/tag_multiarch_plugin.py -p $PLATFORMS "$DOCKER_REPO:latest" release
 
       - name: Create Release
