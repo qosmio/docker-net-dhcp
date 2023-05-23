@@ -10,7 +10,7 @@ on:
 
 jobs:
   docker:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       PLUGIN_NAME: ghcr.io/qosmio/docker-net-dhcp
       PLATFORMS: linux/amd64,linux/arm64
@@ -27,11 +27,11 @@ jobs:
       - name: Install script dependencies
         run: pip3 install -r scripts/requirements.txt
 
-      - id: vars
-        name: Generate build vars
+      - name: Generate build vars
+        id: vars
         run: |
           SHA="${{ github.sha }}"
-          echo "::set-output name=tag::"${SHA:0:8}-$(date +%s)Z""
+          echo "version=${SHA:0:8}-$(date +%s)Z" >> $GITHUB_OUTPUT
 
       - name: Build
         run: make PLUGIN_TAG=${{ steps.vars.outputs.tag }} multiarch
